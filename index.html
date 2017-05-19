@@ -46,6 +46,63 @@
 				var directionalLight = new THREE.DirectionalLight(0xFFA500);
 				directionalLight.postition.set(50, 50, 30).normalize();
 				scene.add(directionalLight);
+
+				//CARREGAR MODELO
+				var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
+
+				var onError = function ( xhr ) { };
+
+				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+				var mtlLoader = new THREE.MTLLoader();
+				mtlLoader.load("http://127.0.0.1:8887/models/Rock1.mtl", function( materials ) {
+					materials.preload();
+					var objLoader = new THREE.OBJLoader();
+					objLoader.setMaterials( materials );
+					objLoader.load( "http://127.0.0.1:8887/models/Rock1.obj", function ( object ) {
+						object.position.y = 0;
+						scene.add( object );
+					}, onProgress, onError );
+				});
+
+				//RENDERIZAR
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0xffffff, 1);
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				// Add OrbitControls so that we can pan around with the mouse.
+				controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+				window.addEventListener( 'resize', onWindowResize, false );
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+
+			function render() {
+				renderer.render( scene, camera );
+				controls.update();
+			}
 		</script>
 	</body>
 </html>
