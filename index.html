@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
-		<title>Atividade 1 de Computacao Grafica</title>
-		<meta charset="utf-8">
+		<meta charset=utf-8>
+		<title>Atividade de CG</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
 	</head>
 
 	<body>
@@ -63,11 +67,11 @@
 
 				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
 				var mtlLoader = new THREE.MTLLoader();
-				mtlLoader.load("http://127.0.0.1:8887/models/Rock1.mtl", function( materials ) {
+				mtlLoader.load("/models/Rock1.mtl", function( materials ) {
 					materials.preload();
 					var objLoader = new THREE.OBJLoader();
 					objLoader.setMaterials( materials );
-					objLoader.load( "http://127.0.0.1:8887/models/Rock1.obj", function ( object ) {
+					objLoader.load( "/models/Rock1.obj", function ( object ) {
 						object.position.y = 0;
 						scene.add( object );
 					}, onProgress, onError );
