@@ -17,35 +17,39 @@
 		<script src="js/stats.min.js"></script>
 
 		<script>
+
 			var container, stats;
+
 			var camera, scene, renderer;
-			
+
 			var mouseX = 0, mouseY = 0;
-			
+
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
-			
+
+
 			init();
 			animate();
-			
-			function init(){
-				container = document.createElement('div');
-				document.body.appebdChild(container);
-				
+
+
+			function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
 				//CAMERA
-				camera = new THREE.PerspectiveCamera (45, window.innerWidth / window.innerHeight, 1, 200);
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.z = 10;
-				
-				//CENA
+
+				// CENA
 				scene = new THREE.Scene();
-				
+
 				//LUZ
 				var ambient = new THREE.AmbientLight(0xffffff);
-				scene.add(ambient);
-				
-				var directionalLight = new THREE.DirectionalLight(0xFFA500);
-				directionalLight.postition.set(50, 50, 30).normalize();
-				scene.add(directionalLight);
+				scene.add( ambient );
+
+				var directionalLight = new THREE.DirectionalLight( 0xFFA500 );
+				directionalLight.position.set( 50, 50, 30 ).normalize();
+				scene.add( directionalLight );
 
 				//CARREGAR MODELO
 				var onProgress = function ( xhr ) {
@@ -103,6 +107,7 @@
 				renderer.render( scene, camera );
 				controls.update();
 			}
+
 		</script>
 	</body>
 </html>
