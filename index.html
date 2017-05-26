@@ -19,6 +19,7 @@
 
 		<script src="js/Detector.js"></script>
 		<script src="js/stats.min.js"></script>
+		<script src="js/Matrix4.js"></script>
 
 		<script>
 
@@ -39,6 +40,9 @@
 			function init() {
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
+				// matriz
+				var matrizrock = new THREE.Matrix4();
+				var matrizpao = new THREE.Matrix4();
 
 				//CAMERA
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
@@ -89,11 +93,11 @@
 							child.material.map = texture;
 						}
 					} );
-					object.position.y = 0;
-					object.position.x = 4;
-
+					object.applyMatrix(matrizrock);
+					object.position.set( 4, 0, 0 );
+					object.rotation.set( 0, 5, 0 );
 					object.scale.set(0.25, 0.25, 0.25);
-
+					object.updateMatrix();
 					scene.add( object );
 				}, onProgress, onError );
 
@@ -111,11 +115,11 @@
 							child.material.map = texture2;
 						}
 					} );
-					object.position.y = 0;
-					object.position.x = -4;
-
-					object.scale.set(0.5, 0.5, 0.5);
-					object.rotateY( 270* Math.PI / 180 );
+					object.applyMatrix(matrizrock);
+					object.position.set( -4, 0, 0 );
+					object.rotation.set( 0, 5, 8 );
+					object.scale.set(0.25, 0.25, 0.25);
+					object.updateMatrix();
 
 					scene.add( object );
 				}, onProgress, onError );
