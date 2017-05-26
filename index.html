@@ -42,8 +42,9 @@
 
 				//CAMERA
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.z = 10;
-
+				camera.position.x = 10;
+			    camera.position.z = 10;
+			    camera.position.y = 10;
 				// CENA
 				scene = new THREE.Scene();
 
@@ -114,6 +115,7 @@
 					object.position.x = -4;
 
 					object.scale.set(0.5, 0.5, 0.5);
+					object.rotateY( 270* Math.PI / 180 );
 
 					scene.add( object );
 				}, onProgress, onError );
