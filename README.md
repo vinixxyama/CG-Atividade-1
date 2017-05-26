@@ -8,5 +8,8 @@ Abra o app e clique em "Choose Directory".<br />
 Após clicar, escolha o diretório onde está o arquivo index.html.<br />
 ![Alt text](/readme_images/folder2.jpg?raw=true)<br/>
 
-O app vai gerar um http, clique nele, e clique em 'index.html'<br />
+O app vai gerar um http, clique nele.<br />
 ![Alt text](/readme_images/folder3.jpg?raw=true)<br/>
+
+Em seguida clique em 'index.html'.<br/>
+![Alt text](/readme_images/folder4.jpg?raw=true)<br/>
