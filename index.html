@@ -41,9 +41,9 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 				// matriz
-				var matrizrock = new THREE.Matrix4();
-				var matrizpao = new THREE.Matrix4();
-				var matrizcam = new THREE.Matrix4();
+				var matrizRock = new THREE.Matrix4();
+				var matrizBread = new THREE.Matrix4();
+				var matrizCam = new THREE.Matrix4();
 
 				//CAMERA
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
@@ -98,7 +98,7 @@
 							child.material.map = texture;
 						}
 					} );
-					object.applyMatrix(matrizrock);
+					object.applyMatrix(matrizRock);
 					object.position.set( 4, 0, 0 );
 					object.rotation.set( 0, 5, 0 );
 					object.scale.set(0.25, 0.25, 0.25);
@@ -120,7 +120,7 @@
 							child.material.map = texture2;
 						}
 					} );
-					object.applyMatrix(matrizrock);
+					object.applyMatrix(matrizBread);
 					object.position.set( -4, 0, 0 );
 					object.rotation.set( 8, 5, 8 );
 					object.scale.set(0.25, 0.25, 0.25);
