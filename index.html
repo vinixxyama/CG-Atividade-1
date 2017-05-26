@@ -51,7 +51,7 @@
 				var ambient = new THREE.AmbientLight(0xffffff);
 				scene.add( ambient );
 
-				var directionalLight = new THREE.DirectionalLight( 0xFFA500 );
+				var directionalLight = new THREE.DirectionalLight( 0xFFFFFF );
 				directionalLight.position.set( 50, 50, 30 ).normalize();
 				scene.add( directionalLight );
 
@@ -64,6 +64,7 @@
 				};
 
 				var texture = new THREE.Texture();
+				var texture2 = new THREE.Texture();
 
 				var onProgress = function ( xhr ) {
 					if ( xhr.lengthComputable ) {
@@ -74,34 +75,46 @@
 
 				var onError = function ( xhr ) { };
 
-				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-				var mtlLoader = new THREE.MTLLoader();
-				mtlLoader.load("/models/Rock1.mtl", function( materials ) {
-					materials.preload();
-					var objLoader = new THREE.OBJLoader();
-					objLoader.setMaterials( materials );
-					objLoader.load( "/models/Rock1.obj", function ( object ) {
-						object.position.y = 0;
-						object.position.x = 4;
-						scene.add( object );
-					}, onProgress, onError );
-				});
-
 				var loader = new THREE.ImageLoader( manager );
-				loader.load( '/Bread-Texture-Surface.jpg', function ( image ) {
+				loader.load( 'http://127.0.0.1:8887/models/Rock/Rock-Texture-Surface.jpg', function ( image ) {
 					texture.image = image;
 					texture.needsUpdate = true;
 				} );
 				// model
 				var loader = new THREE.OBJLoader( manager );
-				loader.load( '/models/Bread11_content.obj', function ( object ) {
+				loader.load( 'http://127.0.0.1:8887/models/Rock/Rock.obj', function ( object ) {
 					object.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) {
 							child.material.map = texture;
 						}
 					} );
 					object.position.y = 0;
+					object.position.x = 4;
+
+					object.scale.set(0.25, 0.25, 0.25);
+
+					scene.add( object );
+				}, onProgress, onError );
+
+
+				var loader2 = new THREE.ImageLoader( manager );
+				loader2.load( 'http://127.0.0.1:8887/models/Bread/Bread-Texture-Surface.jpg', function ( image ) {
+					texture2.image = image;
+					texture2.needsUpdate = true;
+				} );
+				// model
+				var loader2 = new THREE.OBJLoader( manager );
+				loader2.load( 'http://127.0.0.1:8887/models/Bread/Bread.obj', function ( object ) {
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) {
+							child.material.map = texture2;
+						}
+					} );
+					object.position.y = 0;
 					object.position.x = -4;
+
+					object.scale.set(0.5, 0.5, 0.5);
+
 					scene.add( object );
 				}, onProgress, onError );
 
