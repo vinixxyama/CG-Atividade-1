@@ -43,6 +43,8 @@
 				// matriz
 				var matrizRock = new THREE.Matrix4();
 				var matrizBread = new THREE.Matrix4();
+				var matrizSeaGul = new THREE.Matrix4();
+				var matrizMushroom = new THREE.Matrix4();
 				var matrizCam = new THREE.Matrix4();
 
 				//CAMERA
@@ -75,6 +77,8 @@
 
 				var texture = new THREE.Texture();
 				var texture2 = new THREE.Texture();
+				var texture3 = new THREE.Texture();
+				var texture4 = new THREE.Texture();
 
 				var onProgress = function ( xhr ) {
 					if ( xhr.lengthComputable ) {
@@ -128,7 +132,7 @@
 
 					scene.add( object );
 				}, onProgress, onError );
-				
+
 				var loader3 = new THREE.ImageLoader( manager );
 				loader3.load( '/models/SeaGul/SeaGul-Texture-Surface.jpg', function ( image ) {
 					texture3.image = image;
@@ -143,13 +147,36 @@
 						}
 					} );
 					object.applyMatrix(matrizSeaGul);
-					object.position.set( 4, 0, 0 );
-					object.rotation.set( 0, 5, 0 );
-					object.scale.set(0.25, 0.25, 0.25);
+					object.position.set( 4, 4, 4 );
+					object.rotation.set( 10, 6, 3 );
+					object.scale.set(1.0, 1.0, 1.0);
 					object.updateMatrix();
 					scene.add( object );
 				}, onProgress, onError );
 
+				var mtlLoader = new THREE.MTLLoader();
+				mtlLoader.setBaseUrl( 'models/Mushroom/' );
+				mtlLoader.setPath( 'models/Mushroom/' );
+				var url = "boletus.mtl";
+				mtlLoader.load( url, function( materials ) {
+
+				    materials.preload();
+
+				    var objLoader = new THREE.OBJLoader();
+				    objLoader.setMaterials( materials );
+				    objLoader.setPath( 'models/Mushroom/' );
+				    objLoader.load( 'boletus.obj', function ( object ) {
+
+				        object.applyMatrix(matrizMushroom);
+						object.position.set( 0, 4, 0 );
+						object.rotation.set( 10, 6, 3 );
+						object.scale.set(0.005, 0.005, 0.005);
+						object.updateMatrix();
+				        scene.add( object );
+
+				    }, onProgress, onError );
+
+				});
 
 				//RENDERIZAR
 				renderer = new THREE.WebGLRenderer();
