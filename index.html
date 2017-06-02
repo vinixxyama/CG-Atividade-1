@@ -16,6 +16,7 @@
 		<script src="js/MTLLoader.js"></script>
 		<script src="js/OBJLoader.js"></script>
 		<script src="js/OrbitControls.js"></script>
+		<script src="js/THREEx.KeyboardState.js"></script>
 
 		<script src="js/Detector.js"></script>
 		<script src="js/stats.min.js"></script>
@@ -24,11 +25,10 @@
 		<script>
 
 			var container, stats;
-
-			var camera, scene, renderer;
-
+			var keyboard = new THREEx.KeyboardState();
+			var camera1, camera2, scene, renderer;
 			var mouseX = 0, mouseY = 0;
-
+			var camera2Active = false;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 
@@ -47,23 +47,25 @@
 				var matrizMushroom = new THREE.Matrix4();
 				var matrizCam = new THREE.Matrix4();
 
-				//CAMERA
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.x = 10;
-			    camera.position.z = 10;
-			    camera.position.y = 10;
-				// camera.matrixAutoUpdate = false;
-    			//camera.matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, -30 + (5 * 10), 0, 0, 0, 1);
-    			//camera.updateMatrixWorld( true );
-
 				// CENA
 				scene = new THREE.Scene();
+
+				//CAMERA 1
+				camera1 = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+			    camera1.position.set(10,10,10);
+			    camera1.lookAt(scene.position);
+
+			    //CAMERA 2
+			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2000);
+			    camera2.position.set(-20,10,-20);
+			    camera2.lookAt(scene.position);
+			    scene.add(camera2);
 
 				//LUZ
 				var ambient = new THREE.AmbientLight(0xffffff);
 				scene.add( ambient );
 
-				var directionalLight = new THREE.DirectionalLight( 0xFFFFFF );
+				var directionalLight = new THREE.DirectionalLight( 0xFFF555 );
 				directionalLight.position.set( 50, 50, 30 ).normalize();
 				scene.add( directionalLight );
 
@@ -180,13 +182,13 @@
 
 				//RENDERIZAR
 				renderer = new THREE.WebGLRenderer();
-				renderer.setClearColor(0xffffff, 1);
+				renderer.setClearColor(0x555555, 1);
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
 
 				// Add OrbitControls so that we can pan around with the mouse.
-				controls = new THREE.OrbitControls(camera, renderer.domElement);
+				controls = new THREE.OrbitControls(camera1, renderer.domElement);
 
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
@@ -196,8 +198,8 @@
 				windowHalfX = window.innerWidth / 2;
 				windowHalfY = window.innerHeight / 2;
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+				camera1.aspect = window.innerWidth / window.innerHeight;
+				camera1.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -206,10 +208,26 @@
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
+				update();
+			}
+
+			function update(){
+
+
+				if(keyboard.pressed("1")){
+					camera2Active = true;
+				}
+				if(keyboard.pressed("2")){
+					camera2Active = false;
+				}
 			}
 
 			function render() {
-				renderer.render( scene, camera );
+				if(camera2Active){
+					renderer.render( scene, camera2 );
+				}else{
+					renderer.render( scene, camera1 );
+				}
 				controls.update();
 			}
 
