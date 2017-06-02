@@ -188,7 +188,8 @@
 				container.appendChild( renderer.domElement );
 
 				// Add OrbitControls so that we can pan around with the mouse.
-				controls = new THREE.OrbitControls(camera1, renderer.domElement);
+				controls1 = new THREE.OrbitControls(camera1, renderer.domElement);
+				controls2 = new THREE.OrbitControls(camera2, renderer.domElement);
 
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
@@ -228,7 +229,8 @@
 				}else{
 					renderer.render( scene, camera1 );
 				}
-				controls.update();
+				controls1.update();
+				controls2.update();
 			}
 
 		</script>
