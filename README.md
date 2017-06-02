@@ -13,3 +13,7 @@ O app vai gerar um http, clique nele.<br />
 
 Em seguida clique em 'index.html'.<br/>
 ![Alt text](/readme_images/folder4.jpg?raw=true)<br/>
+
+#CAMERA
+TECLA 1 MUDA PARA A CAMERA1 <br/>
+TECLA 2 MUDA PARA A CAMERA2 <br/>
