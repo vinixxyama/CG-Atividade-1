@@ -17,3 +17,4 @@ Em seguida clique em 'index.html'.<br/>
 # Comandos da CAMERA:
 TECLA 1 MUDA PARA A CAMERA1 <br />
 TECLA 2 MUDA PARA A CAMERA2 <br />
+Mouse com botão esquerdo movimenta camera <br />
