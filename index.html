@@ -145,7 +145,16 @@
 					object.updateMatrix();
 					scene.add( object );
 				}, onProgress, onError );
-
+				
+				/*
+				var curve = new THREE.SplineCurve3([
+					new THREE.Vector3( 0, 0, -300 ), 	//starting point
+					new THREE.Vector3( 0, 150, -75 ), 	//first control point
+					new THREE.Vector3( 0, -100, 0 ), 		//second control point
+					new THREE.Vector3( 0, -100, 0 )	//ending point
+				]);
+				*/
+				
 				var curve = new THREE.CubicBezierCurve3(
 					new THREE.Vector3( 0, 0, -300 ), 	//starting point
 					new THREE.Vector3( 0, 300, 0 ), 	//first control point
