@@ -12,15 +12,13 @@
 	<body>
 		<script src="js/three.js"></script>
 
+		<script src="js/TGALoader.js"></script>
 		<script src="js/DDSLoader.js"></script>
 		<script src="js/MTLLoader.js"></script>
 		<script src="js/OBJLoader.js"></script>
+
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/THREEx.KeyboardState.js"></script>
-
-		<script src="js/Detector.js"></script>
-		<script src="js/stats.min.js"></script>
-		<script src="js/Matrix4.js"></script>
 
 		<script>
 
@@ -31,6 +29,8 @@
 			var camera2Active = false;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
+			var aux;
+			var geometry, i = 0;
 
 
 			init();
@@ -41,28 +41,76 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 				// matriz
-				var matrizRock = new THREE.Matrix4();
-				var matrizBread = new THREE.Matrix4();
-				var matrizSeaGul = new THREE.Matrix4();
-				var matrizMushroom = new THREE.Matrix4();
+				var matrizCesta = new THREE.Matrix4();
+				var matrizBola = new THREE.Matrix4();
 				var matrizCam = new THREE.Matrix4();
+				var quadra, bola, cesta, placa;
+				var loader = new THREE.TGALoader();
+				var loadingManager = new THREE.LoadingManager();
+				var textureLoader = new THREE.TextureLoader(loadingManager);
+				var placaLoader = new THREE.TextureLoader(loadingManager);
+
+				//TEXTURAS
+				var texture = new THREE.Texture();
+				var texture2 = new THREE.Texture();
+				var texture3 = new THREE.Texture();
+				var texture4 = new THREE.Texture();
 
 				// CENA
 				scene = new THREE.Scene();
 
 				//CAMERA 1
-				camera1 = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-			    camera1.position.set(10,10,10);
+				camera1 = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			    camera1.position.set(0,200,500);
+			    
 			    camera1.lookAt(scene.position);
 
 			    //CAMERA 2
 			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2000);
-			    camera2.position.set(-20,10,-20);
+			    camera2.rotateX( 90 * Math.PI / 180 );
+			    camera2.position.set(600,200,0);
 			    camera2.lookAt(scene.position);
 			    scene.add(camera2);
 
+			    //cria um retangulo que serve de cenario para q quadra inteira
+				var quadracenario = new THREE.MeshPhongMaterial({
+					map: textureLoader.load( "models/courtwall.jpg", function(texture) {
+					    console.log("Textura do cenário carregada");
+					}, onProgress),
+					side: THREE.BackSide
+				});
+				var geoCaixaCenario = new THREE.BoxGeometry( 600, 600, 1000 );
+				var caixaCenario = new THREE.Mesh( geoCaixaCenario, quadracenario );
+				caixaCenario.position.set(0,290,0);
+				caixaCenario.doubleSided = true;
+				caixaCenario.receiveShadow = true;
+				scene.add(caixaCenario);
+
+				//CRIA UM RETANGULO COM TEXTURA PARA COLOCAR NOME DOS CRIADORES
+				placaLoader.load( "/models/placa.jpg", function ( texture2 ) {
+					var placageo = new THREE.BoxGeometry( 250, 250, 0);
+					var placamat = new THREE.MeshPhongMaterial({map:texture2});
+					placa = new THREE.Mesh( placageo, placamat );
+					placa.position.set(-295,141,108);
+					placa.rotateY( 270* Math.PI / 180 );
+					placa.receiveShadow = true;
+					scene.add(placa);
+				}, onProgress);
+
+				//CARREGA QUADRA COM TEXTURA
+			    textureLoader.load( "/models/images.jpg", function ( texture3 ) {
+					var geometry = new THREE.BoxGeometry( 600, 1000, 0);
+					var material = new THREE.MeshPhongMaterial({map:texture3});
+					quadra = new THREE.Mesh( geometry, material );
+					quadra.position.set(0,0,0);
+					quadra.rotateX( 90 * Math.PI / 180 );
+
+					quadra.receiveShadow = true;
+					scene.add(quadra);
+				}, onProgress);
+
 				//LUZ
-				var ambient = new THREE.AmbientLight(0xffffff);
+				var ambient = new THREE.AmbientLight(0x404040);
 				scene.add( ambient );
 
 				var directionalLight = new THREE.DirectionalLight( 0xFFF555 );
@@ -77,11 +125,6 @@
 
 				};
 
-				var texture = new THREE.Texture();
-				var texture2 = new THREE.Texture();
-				var texture3 = new THREE.Texture();
-				var texture4 = new THREE.Texture();
-
 				var onProgress = function ( xhr ) {
 					if ( xhr.lengthComputable ) {
 						var percentComplete = xhr.loaded / xhr.total * 100;
@@ -91,96 +134,62 @@
 
 				var onError = function ( xhr ) { };
 
-				var loader = new THREE.ImageLoader( manager );
-				loader.load( '/models/Rock/Rock-Texture-Surface.jpg', function ( image ) {
+				// CARREGA A CESTA DE BASQUETE E SUA TEXTURA
+				cesta = new THREE.ImageLoader( manager );
+				cesta.load( '/models/basket/basketball_hoop_diffuse_noAO.jpg', function ( image ) {
 					texture.image = image;
 					texture.needsUpdate = true;
 				} );
-				// model
-				var loader = new THREE.OBJLoader( manager );
-				loader.load( '/models/Rock/Rock.obj', function ( object ) {
+				cesta = new THREE.OBJLoader( manager );
+				cesta.load( '/models/basket/basketball_hoop.obj', function ( object ) {
 					object.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) {
 							child.material.map = texture;
 						}
 					} );
-					object.applyMatrix(matrizRock);
-					object.position.set( 4, 0, 0 );
-					object.rotation.set( 0, 5, 0 );
-					object.scale.set(0.25, 0.25, 0.25);
+					object.applyMatrix(matrizCesta);
+					object.position.set( 0, 100, -400 );
+					object.rotation.set( 0, 0, 0 );
+					object.scale.set(0.015, 0.015,0.015);
 					object.updateMatrix();
 					scene.add( object );
 				}, onProgress, onError );
 
-
-				var loader2 = new THREE.ImageLoader( manager );
-				loader2.load( '/models/Bread/Bread-Texture-Surface.jpg', function ( image ) {
-					texture2.image = image;
-					texture2.needsUpdate = true;
-				} );
-				// model
-				var loader2 = new THREE.OBJLoader( manager );
-				loader2.load( '/models/Bread/Bread.obj', function ( object ) {
+				//CARREGA A BOLA E SUA TEXTURA
+				bola = new THREE.ImageLoader( manager );
+				texture2 = loader.load('/models/ball/NBA BASKETBALL DIFFUSE.tga');
+				bola = new THREE.OBJLoader( manager );
+				bola.load( '/models/ball/NBA BASKETBALL.obj', function ( object ) {
 					object.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) {
 							child.material.map = texture2;
 						}
 					} );
-					object.applyMatrix(matrizBread);
-					object.position.set( -4, 0, 0 );
-					object.rotation.set( 8, 5, 8 );
-					object.scale.set(0.25, 0.25, 0.25);
+					object.applyMatrix(matrizBola);
+					object.position.set( 0, 100, -150 );
+					object.rotation.set( 0, 0, 0 );
+					object.scale.set(0.5, 0.5, 0.5);
 					object.updateMatrix();
-
+					object.translateZ( 10 );
+					aux = object;
 					scene.add( object );
 				}, onProgress, onError );
 
-				var loader3 = new THREE.ImageLoader( manager );
-				loader3.load( '/models/SeaGul/SeaGul-Texture-Surface.jpg', function ( image ) {
-					texture3.image = image;
-					texture3.needsUpdate = true;
-				} );
-				// model
-				var loader3 = new THREE.OBJLoader( manager );
-				loader3.load( '/models/SeaGul/SeaGul.obj', function ( object ) {
-					object.traverse( function ( child ) {
-						if ( child instanceof THREE.Mesh ) {
-							child.material.map = texture3;
-						}
-					} );
-					object.applyMatrix(matrizSeaGul);
-					object.position.set( 4, 4, 4 );
-					object.rotation.set( 10, 6, 3 );
-					object.scale.set(1.0, 1.0, 1.0);
-					object.updateMatrix();
-					scene.add( object );
-				}, onProgress, onError );
+				//CURVA				
+				var curve = new THREE.CubicBezierCurve3(
+					new THREE.Vector3( 0, 100, -150 ), 	//starting point
+					new THREE.Vector3( 0, 300, -300 ), 	//first control point
+					new THREE.Vector3( 0, 225, -450 ), 		//second control point
+					new THREE.Vector3( 0, -100, -390 )	//ending point
+				);
 
-				var mtlLoader = new THREE.MTLLoader();
-				mtlLoader.setBaseUrl( 'models/Mushroom/' );
-				mtlLoader.setPath( 'models/Mushroom/' );
-				var url = "boletus.mtl";
-				mtlLoader.load( url, function( materials ) {
+				geometry = new THREE.Geometry();
+				geometry.vertices = curve.getPoints(200);
+				var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+				var curveObject = new THREE.Line( geometry, material );
+				scene.add(curveObject);
 
-				    materials.preload();
-
-				    var objLoader = new THREE.OBJLoader();
-				    objLoader.setMaterials( materials );
-				    objLoader.setPath( 'models/Mushroom/' );
-				    objLoader.load( 'boletus.obj', function ( object ) {
-
-				        object.applyMatrix(matrizMushroom);
-						object.position.set( 0, 4, 0 );
-						object.rotation.set( 10, 6, 3 );
-						object.scale.set(0.005, 0.005, 0.005);
-						object.updateMatrix();
-				        scene.add( object );
-
-				    }, onProgress, onError );
-
-				});
-
-				//RENDERIZAR
+				//RENDERIZA
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0x555555, 1);
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -213,8 +222,6 @@
 			}
 
 			function update(){
-
-
 				if(keyboard.pressed("1")){
 					camera2Active = true;
 				}
@@ -231,6 +238,11 @@
 				}
 				controls1.update();
 				controls2.update();
+				if(i >= 200){
+					i = 0;
+				}
+				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
+				i++;
 			}
 
 		</script>
