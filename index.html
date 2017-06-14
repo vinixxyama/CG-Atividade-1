@@ -29,7 +29,8 @@
 			var camera2Active = false;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
-
+			var aux;
+			var geometry, i = 0;
 
 			init();
 			animate();
@@ -125,19 +126,11 @@
 					object.rotation.set( 0, 0, 0 );
 					object.scale.set(1, 1, 1);
 					object.updateMatrix();
+					aux = object;
 					scene.add( object );
 				});
 				
-				//CURVA
-				/*
-				var curve = new THREE.SplineCurve3([
-					new THREE.Vector3( 0, 0, -300 ), 	//starting point
-					new THREE.Vector3( 0, 150, -75 ), 	//first control point
-					new THREE.Vector3( 0, -100, 0 ), 		//second control point
-					new THREE.Vector3( 0, -100, 0 )	//ending point
-				]);
-				*/
-				
+				//CURVA				
 				var curve = new THREE.CubicBezierCurve3(
 					new THREE.Vector3( 0, 0, -300 ), 	//starting point
 					new THREE.Vector3( 0, 300, 0 ), 	//first control point
@@ -145,8 +138,8 @@
 					new THREE.Vector3( 0, -100, -50 )	//ending point
 				);
 
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
+				geometry = new THREE.Geometry();
+				geometry.vertices = curve.getPoints(200);
 				var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
 				var curveObject = new THREE.Line( geometry, material );
 				scene.add(curveObject);
@@ -202,6 +195,14 @@
 				}
 				controls1.update();
 				controls2.update();
+				
+				//MOVENDO A BOLA
+				if(i >= 200){
+					i = 0;
+				}
+
+				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
+				i++;
 			}
 
 		</script>
