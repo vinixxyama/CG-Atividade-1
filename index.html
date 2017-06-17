@@ -247,6 +247,16 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
 
+			function calcularRadianos(grau){
+				return grau * Math.PI / 180;
+			}
+
+			function rotacionarBola(){
+    			var matrizRotacao = new THREE.Matrix4();
+    			matrizRotacao.makeRotationX(calcularRadianos(5));
+    			aux.applyMatrix(matrizRotacao);
+    		}
+
 			function onWindowResize() {
 
 				windowHalfX = window.innerWidth / 2;
@@ -286,6 +296,9 @@
 				//ORBIT CONTROL DAS CAMERAS
 				controls1.update();
 				controls2.update();
+
+				//ROTACIONAR BOLA 1
+				rotacionarBola();
 
 				//MOVIMENTO BOLA 1
 				if(i >= 500){
