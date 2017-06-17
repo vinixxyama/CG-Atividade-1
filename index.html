@@ -118,7 +118,7 @@
 				directionalLight.position.set( 50, 50, 30 ).normalize();
 				scene.add( directionalLight );
 
-				//CARREGAR MODELO
+				//CARREGAR MODELOS
 				var manager = new THREE.LoadingManager();
 				manager.onProgress = function ( item, loaded, total ) {
 					console.log( item, loaded, total );
@@ -209,7 +209,7 @@
 					scene.add( object );
 				}, onProgress, onError );
 
-				//CURVA				
+				//CURVA	BOLA 1			
 				var curve = new THREE.CubicBezierCurve3(
 					new THREE.Vector3( 0, 100, -150 ), 	//starting point
 					new THREE.Vector3( 0, 300, -300 ), 	//first control point
@@ -217,11 +217,21 @@
 					new THREE.Vector3( 0, 0, -390 )	//ending point
 				);
 
+				//CAPTURA DO PERCURSO DA BOLA 1
 				geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints(200);
+				geometry.vertices = curve.getPoints(500);
 				var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
 				var curveObject = new THREE.Line( geometry, material );
 				scene.add(curveObject);
+
+				/*---------CRIAR MOVIMENTO PARA A BOLA 2 AQUI------------*/
+
+				//CAPTURA DO PERCURSO DA BOLA 2
+				geometry2 = new THREE.Geometry();
+				geometry2.vertices = curve.getPoints(500);
+				var material2 = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+				var curveObject2 = new THREE.Line( geometry2, material2 );
+				scene.add(curveObject2);
 
 				//RENDERIZA
 				renderer = new THREE.WebGLRenderer();
@@ -255,27 +265,41 @@
 			}
 
 			function update(){
+				//1 PARA ATIVAR CAMERA 1
 				if(keyboard.pressed("1")){
 					camera2Active = true;
 				}
+				//2 PARA ATIVAR CAMERA 2
 				if(keyboard.pressed("2")){
 					camera2Active = false;
 				}
 			}
 
 			function render() {
+				//ALTERNAR ENTRE CAMERA 1 E CAMERA 2
 				if(camera2Active){
 					renderer.render( scene, camera2 );
 				}else{
 					renderer.render( scene, camera1 );
 				}
+
+				//ORBIT CONTROL DAS CAMERAS
 				controls1.update();
 				controls2.update();
-				if(i >= 200){
+
+				//MOVIMENTO BOLA 1
+				if(i >= 500){
 					i = 0;
 				}
 				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
 				i++;
+				
+				//MOVIMENTO BOLA 2
+				if(j >= 500){
+					j = 0;
+				}
+				aux.position.set(geometry2.vertices[j].x, geometry2.vertices[j].y, geometry2.vertices[j].z);
+				j++;
 			}
 
 		</script>
