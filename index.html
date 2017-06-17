@@ -71,7 +71,7 @@
 			    camera2.rotateX( 90 * Math.PI / 180 );
 			    camera2.position.set(600,200,0);
 			    camera2.lookAt(scene.position);
-			    scene.add(camera2);
+			    scene.add(camera1);
 
 			    //cria um retangulo que serve de cenario para q quadra inteira
 				var quadracenario = new THREE.MeshPhongMaterial({
@@ -306,13 +306,13 @@
 				}
 				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
 				i++;
-
+				/*
 				//MOVIMENTO BOLA 2
 				if(j >= 500){
 					j = 0;
 				}
 				aux2.position.set(geometry2.vertices[j].x, geometry2.vertices[j].y, geometry2.vertices[j].z);
-				j++;
+				j++;*/
 			}
 
 		</script>
