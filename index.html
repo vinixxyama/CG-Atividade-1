@@ -228,7 +228,7 @@
 
 				//CAPTURA DO PERCURSO DA BOLA 2
 				geometry2 = new THREE.Geometry();
-				geometry2.vertices = curve.getPoints(500);
+				geometry2.vertices = curve.getPoints(500); //alterar "curve" pelo nome da nova trajetoria
 				var material2 = new THREE.LineBasicMaterial( { color : 0xff0000 } );
 				var curveObject2 = new THREE.Line( geometry2, material2 );
 				scene.add(curveObject2);
@@ -293,12 +293,12 @@
 				}
 				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
 				i++;
-				
+
 				//MOVIMENTO BOLA 2
 				if(j >= 500){
 					j = 0;
 				}
-				aux.position.set(geometry2.vertices[j].x, geometry2.vertices[j].y, geometry2.vertices[j].z);
+				aux2.position.set(geometry2.vertices[j].x, geometry2.vertices[j].y, geometry2.vertices[j].z);
 				j++;
 			}
 
