@@ -200,11 +200,10 @@
 						}
 					} );
 					object.applyMatrix(matrizBola2);
-					object.position.set( 0, 100, 0);
+					object.position.set( 0, 100, 150);
 					object.rotation.set( 0, 0, 0 );
 					object.scale.set(0.5, 0.5, 0.5);
 					object.updateMatrix();
-					object.
 					aux2 = object;
 					scene.add( object );
 				}, onProgress, onError );
@@ -226,7 +225,7 @@
 
 				//CURVA	BOLA 2			
 				var curve2 = new THREE.CubicBezierCurve3(
-					new THREE.Vector3( 0, 100, 0 ), 	//starting point
+					new THREE.Vector3( 0, 100, 150 ), 	//starting point
 					new THREE.Vector3( 0, 300, 300 ), 	//first control point
 					new THREE.Vector3( 0, 180, 450 ), 	//second control point
 					new THREE.Vector3( 0, 0,  390 )		//ending point
@@ -235,8 +234,8 @@
 				//CAPTURA DO PERCURSO DA BOLA 2
 				geometry2 = new THREE.Geometry();
 				geometry2.vertices = curve2.getPoints(500);
-				//var material2 = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-				var curveObject2 = new THREE.Line( geometry2, material );
+				var material2 = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+				var curveObject2 = new THREE.Line( geometry2, material2 );
 				scene.add(curveObject2);
 
 				//RENDERIZA
@@ -264,9 +263,9 @@
     		}
 
     		function rotacionarBola2(){
-    			var matrizRotacao = new THREE.Matrix4();
-    			matrizRotacao.makeRotationX(calcularRadianos(5));
-    			aux2.applyMatrix(matrizRotacao);
+    			var matrizRotacao2 = new THREE.Matrix4();
+    			matrizRotacao2.makeRotationX(calcularRadianos(-5));
+    			aux2.applyMatrix(matrizRotacao2);
     		}
 
 			function onWindowResize() {
@@ -311,25 +310,17 @@
 
 				//ROTACIONAR BOLA 1
 				rotacionarBola();
-				
-				//MOVIMENTO BOLA 1
+				//ROTACIONAR BOLA 2
+				rotacionarBola2();
+
+				//MOVIMENTO DAS BOLAS
 				if(i >= 500){
 					i = 0;
 				}
 				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
+				aux2.position.set(geometry2.vertices[i].x, geometry2.vertices[i].y, geometry2.vertices[i].z);
 				i++;
-
-				//ROTACIONAR BOLA 2
-				rotacionarBola2();
-			
-				//MOVIMENTO BOLA 2
-				if(j >= 500){
-					j = 0;
-				}
-				aux2.position.set(geometry2.vertices[j].x, geometry2.vertices[j].y, geometry2.vertices[j].z);
-				j++;
 			}
-
 		</script>
 	</body>
 </html>
