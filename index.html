@@ -24,7 +24,7 @@
 
 			var quadra, bola, cesta1, placa, banco;
 			var container, stats;
-			var zebola = 0;
+			var zebola = -150;
 			var xisbola = 0;
 			var errou = 0;
 			var rand = 0;
@@ -260,17 +260,22 @@
 
 				if(keyboard.pressed("d")){
 					xisbola++;
-					aux.position.set(xisbola,100,-150+zebola);
+					aux.position.set(xisbola,100,zebola);
 				}
 
 				if(keyboard.pressed("a")){
 					xisbola--;
-					aux.position.set(xisbola,100,-150+zebola);
+					aux.position.set(xisbola,100,zebola);
 				}
 
 				if(keyboard.pressed("s")){
 					zebola++;
-					aux.position.set(xisbola,100,-150+zebola);
+					aux.position.set(xisbola,100,zebola);
+				}
+
+				if(keyboard.pressed("w")){
+					zebola--;
+					aux.position.set(xisbola,100,zebola);
 				}
 
 			}
@@ -278,7 +283,7 @@
 			function arremessa(){
 				//CURVA	BOLA 1
 				var curve = new THREE.CubicBezierCurve3(
-					new THREE.Vector3( xisbola, 100, -150+zebola ), 	//starting point
+					new THREE.Vector3( xisbola, 100, zebola ), 	//starting point
 					new THREE.Vector3( 0, 350, -370-errou ), 	//first control point
 					new THREE.Vector3( 0, 260, -460-errou ), 	//second control point
 					new THREE.Vector3( 0, 10, -465-errou )	//ending point
