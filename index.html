@@ -22,11 +22,19 @@
 
 		<script>
 
+			var quadra, bola, cesta1, placa, banco;
 			var container, stats;
+			var zebola = 0;
+			var xisbola = 0;
+			var errou = 0;
+			var rand = 0;
 			var keyboard = new THREEx.KeyboardState();
 			var camera1, camera2, scene, renderer;
 			var mouseX = 0, mouseY = 0;
+			var flag = true;
 			var camera2Active = false;
+			var anda = false;
+			var reseta = false;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			var aux, aux2;
@@ -43,8 +51,9 @@
 				// matriz
 				var matrizCesta1 = new THREE.Matrix4();
 				var matrizBola = new THREE.Matrix4();
+				var matrizBanco = new THREE.Matrix4();
+				var matrizGarrafa = new THREE.Matrix4();
 				var matrizCam = new THREE.Matrix4();
-				var quadra, bola, cesta1, placa;
 				var loader = new THREE.TGALoader();
 				var loadingManager = new THREE.LoadingManager();
 				var textureLoader = new THREE.TextureLoader(loadingManager);
@@ -60,15 +69,14 @@
 				scene = new THREE.Scene();
 
 				//CAMERA 1
-				camera1 = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1800 );
-			    camera1.position.set( 0, 200, 600);
-				camera1.lookAt(new THREE.Vector3(0,200,-450));
+				camera1 = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+			    camera1.position.set( 0, 300, 0);
+			    camera1.rotation.order = 'YXZ';
 
 			    //CAMERA 2
 			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2000);
 			    camera2.rotateX( 90 * Math.PI / 180 );
 			    camera2.position.set(600,200,0);
-			    camera2.lookAt(scene.position);
 			    scene.add(camera1);
 
 			    //cria um retangulo que serve de cenario para q quadra inteira
@@ -165,7 +173,7 @@
 						}
 					} );
 					object.applyMatrix(matrizBola);
-					object.position.set( 0, 100, -150 );
+					object.position.set( xisbola, 100, -150 );
 					object.rotation.set( 0, 0, 0 );
 					object.scale.set(0.5, 0.5, 0.5);
 					object.updateMatrix();
@@ -173,20 +181,23 @@
 					scene.add( object );
 				}, onProgress, onError );
 
-				//CURVA	BOLA 1			
-				var curve = new THREE.CubicBezierCurve3(
-					new THREE.Vector3( 0, 50, -100 ), 	//starting point
-					new THREE.Vector3( 0, 350, -370 ), 	//first control point
-					new THREE.Vector3( 0, 260, -460 ), 	//second control point
-					new THREE.Vector3( 0, 0, -465 )	//ending point
-				);
-
-				//CAPTURA DO PERCURSO DA BOLA 1
-				geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints(500);
-				var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
+				//Banco
+				banco = new THREE.ImageLoader( manager );
+				texture3 = loader.load('/models/benchs_diffuse.tga');
+				banco = new THREE.OBJLoader( manager );
+				banco.load( '/models/bench.obj', function ( object ) {
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) {
+							child.material.map = texture3;
+						}
+					} );
+					object.applyMatrix(matrizBanco);
+					object.position.set(-440, 7, -360);
+					object.rotation.set( 0, 80, 0 );
+					object.scale.set(1, 1, 1);
+					object.updateMatrix();
+					scene.add( object );
+				}, onProgress, onError );
 
 				//RENDERIZA
 				renderer = new THREE.WebGLRenderer();
@@ -238,6 +249,46 @@
 				if(keyboard.pressed("2")){
 					camera2Active = false;
 				}
+
+				if(keyboard.pressed("x")){
+					anda = true;
+				}
+
+				if(keyboard.pressed("space")){
+					reseta = true;
+				}
+
+				if(keyboard.pressed("d")){
+					xisbola++;
+					aux.position.set(xisbola,100,-150+zebola);
+				}
+
+				if(keyboard.pressed("a")){
+					xisbola--;
+					aux.position.set(xisbola,100,-150+zebola);
+				}
+
+				if(keyboard.pressed("s")){
+					zebola++;
+					aux.position.set(xisbola,100,-150+zebola);
+				}
+
+			}
+
+			function arremessa(){
+				//CURVA	BOLA 1
+				var curve = new THREE.CubicBezierCurve3(
+					new THREE.Vector3( xisbola, 100, -150+zebola ), 	//starting point
+					new THREE.Vector3( 0, 350, -370-errou ), 	//first control point
+					new THREE.Vector3( 0, 260, -460-errou ), 	//second control point
+					new THREE.Vector3( 0, 10, -465-errou )	//ending point
+				);
+				//CAPTURA DO PERCURSO DA BOLA 1
+				geometry = new THREE.Geometry();
+				geometry.vertices = curve.getPoints(500);
+				// var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+				// var curveObject = new THREE.Line( geometry, material );
+				// scene.add(curveObject);
 			}
 
 			function render() {
@@ -252,15 +303,39 @@
 				controls1.update();
 				controls2.update();
 
-				//ROTACIONAR BOLA 1
-				rotacionarBola();
-
-				//MOVIMENTO BOLA 1
-				if(i >= 500){
-					i = 0;
+				if(flag == true){
+					rand = Math.floor((Math.random() * 10) + 1);
+					if(rand < 6 || xisbola == 0){
+						errou = 0;
+						flag = false;
+					}else{
+						errou = -30;
+						flag = false;
+					}
 				}
-				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
-				i++;
+
+				if(anda == true){
+					if(i < 500){
+						//curva de bezier
+						arremessa();
+						//ROTACIONA BOLA 1
+						rotacionarBola();
+					}
+					//MOVIMENTO BOLA 1
+					if(i >= 500){
+						i = 500;
+					}
+					//reseta a bola para o inicio
+					if(reseta == true){
+						i = 0;
+						anda = false;
+						reseta = false;
+						flag = true;
+					}
+
+					aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
+					i++;
+				}
 			}
 
 		</script>
