@@ -11,7 +11,6 @@
 
 	<body>
 		<script src="js/three.js"></script>
-
 		<script src="js/TGALoader.js"></script>
 		<script src="js/DDSLoader.js"></script>
 		<script src="js/MTLLoader.js"></script>
@@ -25,7 +24,7 @@
 			var quadra, bola, cesta1, placa, banco;
 			var teste=0;
 			var container, stats;
-			var zebola = -150;
+			var zebola = 0;
 			var xisbola = 0;
 			var errou = 0;
 			var rand = 0;
@@ -40,7 +39,8 @@
 			var windowHalfY = window.innerHeight / 2;
 			var aux, aux2;
 			var geometry, geometry2, i = 0, j = 0;
-
+			var pontos =0;
+			var cx=0,cy=0,cz=0;
 
 			init();
 			animate();
@@ -71,12 +71,15 @@
 
 				//CAMERA 1
 				camera1 = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
+			    scene.add(camera1);
 			    camera1.position.set( 0, 1, 100);
+			    camera1.lookAt(scene.position );
 
 			    //CAMERA 2
-			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2000);
+			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2500);
 			    camera2.rotateX( 90 * Math.PI / 180 );
-			    camera2.position.set(600,200,0);
+			    camera2.position.set(400,5,300);
+			    camera1.lookAt(scene.position );
 			    scene.add(camera1);
 
 			    //cria um retangulo que serve de cenario para q quadra inteira
@@ -241,62 +244,106 @@
 			}
 
 			function update(){
+
 				//1 PARA ATIVAR CAMERA 1
-				if(keyboard.pressed("1")){
-					camera2Active = true;
+				if(keyboard.pressed("0")){
+					if(camera2Active == false){
+						camera2Active = true;
+					}else{
+						camera2Active = false;
+					}
 				}
-				//2 PARA ATIVAR CAMERA 2
+				//Posiciona pro inicio
 				if(keyboard.pressed("2")){
-					camera2Active = false;
-				}
-
-				if(keyboard.pressed("x")){
-					anda = true;
-				}
-
-				if(keyboard.pressed("space")){
+					xisbola = 0;
+					zebola = 0;
 					reseta = true;
+					camera2Active = false;
+					aux.rotation.set( 0, 0, 0 );
+					aux.position.set(xisbola,0,zebola);
 				}
-
-				if(keyboard.pressed("d")){
-					xisbola++;
-					teste++;
-					camera1.traslateZ(teste);
+				//Posiciona pra 3 pontos
+				if(keyboard.pressed("3")){
+					xisbola = 0;
+					zebola = 300;
+					reseta = true;
+					camera2Active = false;
+					aux.rotation.set( 0, 0, 0 );
 					aux.position.set(xisbola,0,zebola);
 				}
 
+				//arremessa
+				if(keyboard.pressed("x")){
+					anda = true;
+					camera2Active = true;
+				}
+
+				//Reseta pro inicio
+				if(keyboard.pressed("space")){
+					reseta = true;
+					camera2Active = false;
+					aux.rotation.set( 0, 0, 0 );
+				}
+				//Controle da Bola
+				if(keyboard.pressed("d")){
+					xisbola++;
+					aux.position.set(xisbola,0,zebola);
+				}
 				if(keyboard.pressed("a")){
 					xisbola--;
 					aux.position.set(xisbola,0,zebola);
 				}
-
 				if(keyboard.pressed("s")){
 					zebola++;
 					aux.position.set(xisbola,0,zebola);
 				}
-
 				if(keyboard.pressed("w")){
 					zebola--;
 					aux.position.set(xisbola,0,zebola);
 				}
+				if(keyboard.pressed("e")){
+					cx++;
+				}
+				if(keyboard.pressed("q")){
+					cx--;
+				}
+				//Faz camera seguir a bola
+				var relativeCameraOffset = new THREE.Vector3(0,50,200);
+				var cameraOffset = relativeCameraOffset.applyMatrix4( aux.matrixWorld );
 
-			}
+				camera1.position.x = cameraOffset.x+cx;
+				camera1.position.y = cameraOffset.y-90;
+				camera1.position.z = cameraOffset.z;
+				camera1.lookAt( aux.position );
+				 //Pontos na tela
+				    var text2 = document.createElement('div');
+				    text2.style.fontSize = "30px";
+					text2.style.position = 'absolute';
+					text2.style.backgroundColor = "red";
+					text2.innerHTML = "PONTOS: " + pontos;
+					text2.style.top = 30 + 'px';
+					text2.style.left = 1100 + 'px';
+					document.body.appendChild(text2);
+				}
 
 			function arremessa(){
 				//CURVA	BOLA 1
 				var curve = new THREE.CubicBezierCurve3(
-					new THREE.Vector3( xisbola, 0, zebola ), 	//starting point
-					new THREE.Vector3( 0, 380, -470-errou ), 	//first control point
-					new THREE.Vector3( 0, 450, -610-errou ), 	//second control point
+					new THREE.Vector3( xisbola, 0, -150+zebola ), 	//starting point
+					new THREE.Vector3( 0, 380, -480-errou ), 	//first control point
+					new THREE.Vector3( 0, 450, -620-errou ), 	//second control point
 					new THREE.Vector3( 0, -180, -650-errou )	//ending point
 				);
 				//CAPTURA DO PERCURSO DA BOLA 1
 				geometry = new THREE.Geometry();
 				geometry.vertices = curve.getPoints(350);
+				//Linha da curva caso precise
 				// var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
 				// var curveObject = new THREE.Line( geometry, material );
-				// scene.add(curveObject);
+				//scene.add(curveObject);
 			}
+
+			
 
 			function render() {
 				//ALTERNAR ENTRE CAMERA 1 E CAMERA 2
@@ -311,13 +358,16 @@
 				controls2.update();
 
 				if(flag == true){
+					//50% de chance da bola acertar a cesta
 					rand = Math.floor((Math.random() * 10) + 1);
 					if(rand < 6 || xisbola == 0){
 						errou = 0;
 						flag = false;
+						pontos++;
 					}else{
-						errou = -30;
+						errou = -50;
 						flag = false;
+
 					}
 				}
 
