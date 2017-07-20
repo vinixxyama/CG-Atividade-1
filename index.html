@@ -19,9 +19,29 @@
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/THREEx.KeyboardState.js"></script>
 
+		<script id="vertexShader" type="x-shader/x-vertex">
+			/*VERTEX SHADER*/
+			varying vec4 col;
+			void main()
+			{
+				col = vec4 (0.52, 0.25, 0.15, 0.0);	
+
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+		</script>
+
+		<script id="fragmentShader" type="x-shader/x-fragment">
+			/*FRAGMENT SHADER*/
+			varying vec4 col;
+			void main()
+			{
+				gl_FragColor = col;
+			}
+		</script>
+
 		<script>
 
-			var quadra, bola, cesta1, placa, banco;
+			var quadra, bola, bola1, bola2, cesta1, placa, banco;
 			var teste=0;
 			var container, stats;
 			var zebola = 0;
@@ -41,6 +61,7 @@
 			var geometry, geometry2, i = 0, j = 0;
 			var pontos =0;
 			var cx=0,cy=0,cz=0;
+			var count = 0;
 
 			init();
 			animate();
@@ -166,6 +187,29 @@
 
 				//CARREGA AS BOLAS E SUAS TEXTURAS
 				//PRIMERA BOLA
+				/*bola = new THREE.ImageLoader( manager );
+				var shaderMat = new THREE.ShaderMaterial({
+					vertexShader: document.getElementById('vertexShader').textContent,
+					fragmentShader: document.getElementById('fragmentShader').textContent
+				});
+
+				bola = new THREE.OBJLoader( manager );
+				bola.load( '/models/ball/NBA BASKETBALL.obj', function ( object ) {
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) {
+							child.material = shaderMat;
+						}
+					} );
+					object.applyMatrix(matrizBola);
+					object.position.set( xisbola, 0, -150 );
+					object.rotation.set( 0, 0, 0 );
+					object.scale.set(1, 1, 1);
+					object.updateMatrix();
+					aux = object;
+					scene.add( object );
+				}, onProgress, onError );*/
+
+
 				bola = new THREE.ImageLoader( manager );
 				texture2 = loader.load('/models/ball/NBA BASKETBALL DIFFUSE.tga');
 				bola = new THREE.OBJLoader( manager );
@@ -184,14 +228,19 @@
 					scene.add( object );
 				}, onProgress, onError );
 
+
 				//Banco
 				banco = new THREE.ImageLoader( manager );
-				texture3 = loader.load('/models/benchs_diffuse.tga');
+				//texture3 = loader.load('/models/benchs_diffuse.tga');
+				var shaderMat = new THREE.ShaderMaterial({
+					vertexShader: document.getElementById('vertexShader').textContent,
+					fragmentShader: document.getElementById('fragmentShader').textContent
+				});
 				banco = new THREE.OBJLoader( manager );
 				banco.load( '/models/bench.obj', function ( object ) {
 					object.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) {
-							child.material.map = texture3;
+							child.material = shaderMat;
 						}
 					} );
 					object.applyMatrix(matrizBanco);
@@ -281,6 +330,18 @@
 				//Reseta pro inicio
 				if(keyboard.pressed("space")){
 					reseta = true;
+
+					if (count%2 == 0)
+					{
+						bola = bola1;
+						count++;
+					}
+					else
+					{
+						bola = bola2;
+						count++;
+					}
+
 					camera2Active = false;
 					aux.rotation.set( 0, 0, 0 );
 				}
