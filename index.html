@@ -11,7 +11,6 @@
 
 	<body>
 		<script src="js/three.js"></script>
-
 		<script src="js/TGALoader.js"></script>
 		<script src="js/DDSLoader.js"></script>
 		<script src="js/MTLLoader.js"></script>
@@ -20,18 +19,50 @@
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/THREEx.KeyboardState.js"></script>
 
+		<script id="vertexShader" type="x-shader/x-vertex">
+			/*VERTEX SHADER*/
+			varying vec4 col;
+			void main()
+			{
+				col = vec4 (0.52, 0.25, 0.15, 0.0);	
+
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+		</script>
+
+		<script id="fragmentShader" type="x-shader/x-fragment">
+			/*FRAGMENT SHADER*/
+			varying vec4 col;
+			void main()
+			{
+				gl_FragColor = col;
+			}
+		</script>
+
 		<script>
 
+			var quadra, bola, cesta1, placa, banco;
+			var sai = 0;
+			var teste=0;
 			var container, stats;
+			var zebola = 0;
+			var xisbola = 0;
+			var errou = 0;
+			var rand = 0;
 			var keyboard = new THREEx.KeyboardState();
 			var camera1, camera2, scene, renderer;
 			var mouseX = 0, mouseY = 0;
+			var flag = true;
 			var camera2Active = false;
+			var anda = false;
+			var reseta = false;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			var aux, aux2;
 			var geometry, geometry2, i = 0, j = 0;
-
+			var pontos =0;
+			var cx=0,cy=0,cz=0;
+			var count = 0;
 
 			init();
 			animate();
@@ -42,11 +73,10 @@
 				document.body.appendChild( container );
 				// matriz
 				var matrizCesta1 = new THREE.Matrix4();
-				var matrizCesta2 = new THREE.Matrix4();
 				var matrizBola = new THREE.Matrix4();
-				var matrizBola2 = new THREE.Matrix4();
+				var matrizBanco = new THREE.Matrix4();
+				var matrizGarrafa = new THREE.Matrix4();
 				var matrizCam = new THREE.Matrix4();
-				var quadra, bola, bola2, cesta1, cesta2, placa;
 				var loader = new THREE.TGALoader();
 				var loadingManager = new THREE.LoadingManager();
 				var textureLoader = new THREE.TextureLoader(loadingManager);
@@ -62,15 +92,16 @@
 				scene = new THREE.Scene();
 
 				//CAMERA 1
-				camera1 = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
-			    camera1.position.set( 0, 200, 300);
-			    camera1.lookAt(scene.position);
+				camera1 = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
+			    scene.add(camera1);
+			    camera1.position.set( 0, 1, 100);
+			    camera1.lookAt(scene.position );
 
 			    //CAMERA 2
-			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2000);
+			    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window. innerHeight, 1, 2500);
 			    camera2.rotateX( 90 * Math.PI / 180 );
-			    camera2.position.set(600,200,0);
-			    camera2.lookAt(scene.position);
+			    camera2.position.set(400,5,300);
+			    camera1.lookAt(scene.position );
 			    scene.add(camera1);
 
 			    //cria um retangulo que serve de cenario para q quadra inteira
@@ -80,7 +111,7 @@
 					}, onProgress),
 					side: THREE.BackSide
 				});
-				var geoCaixaCenario = new THREE.BoxGeometry( 600, 600, 1000 );
+				var geoCaixaCenario = new THREE.BoxGeometry( 1500, 1000, 1500);
 				var caixaCenario = new THREE.Mesh( geoCaixaCenario, quadracenario );
 				caixaCenario.position.set(0,290,0);
 				caixaCenario.doubleSided = true;
@@ -92,20 +123,20 @@
 					var placageo = new THREE.BoxGeometry( 250, 250, 0);
 					var placamat = new THREE.MeshPhongMaterial({map:texture2});
 					placa = new THREE.Mesh( placageo, placamat );
-					placa.position.set(-295,141,108);
+					placa.position.set(-745,200,108);
 					placa.rotateY( 270* Math.PI / 180 );
 					placa.receiveShadow = true;
 					scene.add(placa);
 				}, onProgress);
 
 				//CARREGA QUADRA COM TEXTURA
-			    textureLoader.load( "/models/images.jpg", function ( texture3 ) {
-					var geometry = new THREE.BoxGeometry( 600, 1000, 0);
+			    textureLoader.load( "/models/images.png", function ( texture3 ) {
+					var geometry = new THREE.BoxGeometry( 1500, 1500, 0);
 					var material = new THREE.MeshPhongMaterial({map:texture3});
 					quadra = new THREE.Mesh( geometry, material );
-					quadra.position.set(0,0,0);
+					quadra.position.set(0,-200,0);
 					quadra.rotateX( 90 * Math.PI / 180 );
-
+					quadra.rotateZ( 90 * Math.PI / 180 );
 					quadra.receiveShadow = true;
 					scene.add(quadra);
 				}, onProgress);
@@ -148,25 +179,9 @@
 						}
 					} );
 					object.applyMatrix(matrizCesta1);
-					object.position.set( 0, 100, -400 );
+					object.position.set( 0, 55, -650 );
 					object.rotation.set( 0, 0, 0 );
-					object.scale.set(0.015, 0.015,0.015);
-					object.updateMatrix();
-					scene.add( object );
-				}, onProgress, onError );
-				
-				//SEGUNDA CESTA
-				cesta2 = new THREE.OBJLoader( manager );
-				cesta2.load( '/models/basket/basketball_hoop.obj', function ( object ) {
-					object.traverse( function ( child ) {
-						if ( child instanceof THREE.Mesh ) {
-							child.material.map = texture;
-						}
-					} );
-					object.applyMatrix(matrizCesta2);
-					object.position.set( 0, 100, 400 );
-					object.rotation.set( 0, 600.01, 0 );
-					object.scale.set(0.015, 0.015,0.015);
+					object.scale.set(0.035, 0.035,0.035);
 					object.updateMatrix();
 					scene.add( object );
 				}, onProgress, onError );
@@ -183,60 +198,35 @@
 						}
 					} );
 					object.applyMatrix(matrizBola);
-					object.position.set( 0, 100, -150 );
+					object.position.set( xisbola, 0, -150 );
 					object.rotation.set( 0, 0, 0 );
-					object.scale.set(0.5, 0.5, 0.5);
+					object.scale.set(1, 1, 1);
 					object.updateMatrix();
 					aux = object;
 					scene.add( object );
 				}, onProgress, onError );
 
-				//SEGUNDA BOLA
-				bola2 = new THREE.OBJLoader( manager );
-				bola2.load( '/models/ball/NBA BASKETBALL.obj', function ( object ) {
+				//Banco
+				banco = new THREE.ImageLoader( manager );
+				//texture3 = loader.load('/models/benchs_diffuse.tga');
+				var shaderMat = new THREE.ShaderMaterial({
+					vertexShader: document.getElementById('vertexShader').textContent,
+					fragmentShader: document.getElementById('fragmentShader').textContent
+				});
+				banco = new THREE.OBJLoader( manager );
+				banco.load( '/models/bench.obj', function ( object ) {
 					object.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) {
-							child.material.map = texture2;
+							child.material = shaderMat;
 						}
 					} );
-					object.applyMatrix(matrizBola2);
-					object.position.set( 0, 100, 150);
-					object.rotation.set( 0, 0, 0 );
-					object.scale.set(0.5, 0.5, 0.5);
+					object.applyMatrix(matrizBanco);
+					object.position.set(-680, -188, -360);
+					object.rotation.set( 0, 80, 0 );
+					object.scale.set(2, 2, 2);
 					object.updateMatrix();
-					aux2 = object;
 					scene.add( object );
 				}, onProgress, onError );
-
-				//CURVA	BOLA 1			
-				var curve = new THREE.CubicBezierCurve3(
-					new THREE.Vector3( 0, 100, -150 ), 	//starting point
-					new THREE.Vector3( 0, 300, -300 ), 	//first control point
-					new THREE.Vector3( 0, 180, -450 ), 	//second control point
-					new THREE.Vector3( 0, 0, -390 )		//ending point
-				);
-
-				//CAPTURA DO PERCURSO DA BOLA 1
-				geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints(500);
-				var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-
-				//CURVA	BOLA 2			
-				var curve2 = new THREE.CubicBezierCurve3(
-					new THREE.Vector3( 0, 100, 150 ), 	//starting point
-					new THREE.Vector3( 0, 300, 300 ), 	//first control point
-					new THREE.Vector3( 0, 180, 450 ), 	//second control point
-					new THREE.Vector3( 0, 0,  390 )		//ending point
-				);
-
-				//CAPTURA DO PERCURSO DA BOLA 2
-				geometry2 = new THREE.Geometry();
-				geometry2.vertices = curve2.getPoints(500);
-				var material2 = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-				var curveObject2 = new THREE.Line( geometry2, material2 );
-				scene.add(curveObject2);
 
 				//RENDERIZA
 				renderer = new THREE.WebGLRenderer();
@@ -262,12 +252,6 @@
     			aux.applyMatrix(matrizRotacao);
     		}
 
-    		function rotacionarBola2(){
-    			var matrizRotacao2 = new THREE.Matrix4();
-    			matrizRotacao2.makeRotationX(calcularRadianos(-5));
-    			aux2.applyMatrix(matrizRotacao2);
-    		}
-
 			function onWindowResize() {
 
 				windowHalfX = window.innerWidth / 2;
@@ -286,15 +270,99 @@
 			}
 
 			function update(){
+
 				//1 PARA ATIVAR CAMERA 1
 				if(keyboard.pressed("1")){
-					camera2Active = true;
+					camera2Active = false;
 				}
 				//2 PARA ATIVAR CAMERA 2
 				if(keyboard.pressed("2")){
-					camera2Active = false;
+					camera2Active = true;
 				}
+				//Posiciona pro inicio
+				if(keyboard.pressed("0")){
+					xisbola = 0;
+					zebola = 0;
+					reseta = true;
+					camera2Active = false;
+					aux.rotation.set( 0, 0, 0 );
+					aux.position.set(xisbola,0,zebola);
+				}
+
+				//arremessa
+				if(keyboard.pressed("x")){
+					anda = true;
+					sai = 0;
+					camera2Active = true;
+				}
+
+				//Reseta pro inicio
+				if(keyboard.pressed("space")){
+					reseta = true;
+					camera2Active = false;
+					aux.rotation.set( 0, 0, 0 );
+				}
+				//Controle da Bola
+				if(keyboard.pressed("d")){
+					xisbola++;
+					aux.position.set(xisbola,0,zebola);
+				}
+				if(keyboard.pressed("a")){
+					xisbola--;
+					aux.position.set(xisbola,0,zebola);
+				}
+				if(keyboard.pressed("s")){
+					zebola++;
+					aux.position.set(xisbola,0,zebola);
+				}
+				if(keyboard.pressed("w")){
+					zebola--;
+					aux.position.set(xisbola,0,zebola);
+				}
+				if(keyboard.pressed("e")){
+					cx++;
+				}
+				if(keyboard.pressed("q")){
+					cx--;
+				}
+				//Faz camera seguir a bola
+				var relativeCameraOffset = new THREE.Vector3(0,50,200);
+				var cameraOffset = relativeCameraOffset.applyMatrix4( aux.matrixWorld );
+
+				camera1.position.x = cameraOffset.x+cx;
+				camera1.position.y = cameraOffset.y-90;
+				camera1.position.z = cameraOffset.z;
+				camera1.lookAt( aux.position );
+
+				 //Pontos na tela
+			    var text2 = document.createElement('div');
+			    text2.style.fontSize = "30px";
+				text2.style.position = 'absolute';
+				text2.style.backgroundColor = "red";
+				text2.innerHTML = "PONTOS: " + pontos;
+				text2.style.top = 30 + 'px';
+				text2.style.left = 1100 + 'px';
+				document.body.appendChild(text2);
+				}
+
+			function arremessa(){
+				//CURVA	BOLA 1
+				var curve = new THREE.CubicBezierCurve3(
+					new THREE.Vector3( xisbola, 0, -150+zebola ), 	//starting point
+					new THREE.Vector3( 0, 380, -480-errou ), 	//first control point
+					new THREE.Vector3( 0, 450, -620-errou ), 	//second control point
+					new THREE.Vector3( 0, -180, -650-errou )	//ending point
+				);
+				//CAPTURA DO PERCURSO DA BOLA 1
+				geometry = new THREE.Geometry();
+				geometry.vertices = curve.getPoints(350);
+				//Linha da curva caso precise
+				// var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+				// var curveObject = new THREE.Line( geometry, material );
+				//scene.add(curveObject);
 			}
+
+			
 
 			function render() {
 				//ALTERNAR ENTRE CAMERA 1 E CAMERA 2
@@ -308,19 +376,47 @@
 				controls1.update();
 				controls2.update();
 
-				//ROTACIONAR BOLA 1
-				rotacionarBola();
-				//ROTACIONAR BOLA 2
-				rotacionarBola2();
+				if(flag == true){
+					//50% de chance da bola acertar a cesta
+					rand = Math.floor((Math.random() * 10) + 1);
+					if(rand < 6 || xisbola == 0){
+						errou = 0;
+						flag = false;
+					}else{
+						errou = -50;
+						flag = false;
 
-				//MOVIMENTO DAS BOLAS
-				if(i >= 500){
-					i = 0;
+					}
 				}
-				aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
-				aux2.position.set(geometry2.vertices[i].x, geometry2.vertices[i].y, geometry2.vertices[i].z);
-				i++;
+
+				if(anda == true){
+					if(i < 350){
+						//curva de bezier
+						arremessa();
+						//ROTACIONA BOLA 1
+						rotacionarBola();
+					}
+					//MOVIMENTO BOLA 1
+					if(i >= 350){
+						i = 350;
+					}
+					if(i == 240 && errou == 0 && sai == 0){
+							pontos++;
+							sai = 1;
+					}
+					//reseta a bola para o inicio
+					if(reseta == true){
+						i = 0;
+						anda = false;
+						reseta = false;
+						flag = true;
+					}
+
+					aux.position.set(geometry.vertices[i].x, geometry.vertices[i].y, geometry.vertices[i].z);
+					i++;
+				}
 			}
+
 		</script>
 	</body>
 </html>
