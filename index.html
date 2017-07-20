@@ -41,7 +41,7 @@
 
 		<script>
 
-			var quadra, bola, bola1, bola2, cesta1, placa, banco;
+			var quadra, bola, bola1, bola2, cesta1, placa, banco, esfera;
 			var teste=0;
 			var container, stats;
 			var zebola = 0;
@@ -209,6 +209,8 @@
 					scene.add( object );
 				}, onProgress, onError );*/
 
+				esfera = criarEsfera();
+				scene.add(esfera);
 
 				bola = new THREE.ImageLoader( manager );
 				texture2 = loader.load('/models/ball/NBA BASKETBALL DIFFUSE.tga');
@@ -228,7 +230,6 @@
 					scene.add( object );
 				}, onProgress, onError );
 
-
 				//Banco
 				banco = new THREE.ImageLoader( manager );
 				//texture3 = loader.load('/models/benchs_diffuse.tga');
@@ -247,7 +248,7 @@
 					object.position.set(-680, -188, -360);
 					object.rotation.set( 0, 80, 0 );
 					object.scale.set(2, 2, 2);
-					object.updateMatrix();
+					object.updateMartix();
 					scene.add( object );
 				}, onProgress, onError );
 
@@ -265,6 +266,16 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
 
+			function criarEsfera(){
+    			var geometriaEsfera = new THREE.SphereGeometry(3, 20, 20),
+    				materialEsfera = new THREE.MeshBasicMaterial({color: 0xD6D637}),
+    				esfera = new THREE.Mesh(geometriaEsfera, materialEsfera);
+    
+    			esfera.translateX(50);
+
+    			return esfera;
+    		}
+
 			function calcularRadianos(grau){
 				return grau * Math.PI / 180;
 			}
@@ -273,6 +284,20 @@
     			var matrizRotacao = new THREE.Matrix4();
     			matrizRotacao.makeRotationX(calcularRadianos(5));
     			aux.applyMatrix(matrizRotacao);
+    		}
+
+    		function rotacionarEsfera(){
+    			var matrizRotacaoEixo = new THREE.Matrix4(),
+    			matrizTranslacaoPosicao = new THREE.Matrix4(),
+    			matrizTranslacaoOrigem = new THREE.Matrix4(),
+    			posicao = aux.position;
+    			matrizRotacaoEixo.makeRotationY(calcularRadianos(1.5));
+    			matrizTranslacaoPosicao.makeTranslation(posicao.x, posicao.y, posicao.z);
+    			matrizTranslacaoOrigem.makeTranslation(-posicao.x, -posicao.y, -posicao.z);
+    
+    			esfera.applyMatrix(matrizTranslacaoOrigem);
+    			esfera.applyMatrix(matrizRotacaoEixo);
+    			esfera.applyMatrix(matrizTranslacaoPosicao);
     		}
 
 			function onWindowResize() {
@@ -407,6 +432,7 @@
 			
 
 			function render() {
+				rotacionarEsfera();
 				//ALTERNAR ENTRE CAMERA 1 E CAMERA 2
 				if(camera2Active){
 					renderer.render( scene, camera2 );
