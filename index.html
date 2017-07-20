@@ -41,7 +41,8 @@
 
 		<script>
 
-			var quadra, bola, bola1, bola2, cesta1, placa, banco;
+			var quadra, bola, cesta1, placa, banco;
+			var sai = 0;
 			var teste=0;
 			var container, stats;
 			var zebola = 0;
@@ -187,29 +188,6 @@
 
 				//CARREGA AS BOLAS E SUAS TEXTURAS
 				//PRIMERA BOLA
-				/*bola = new THREE.ImageLoader( manager );
-				var shaderMat = new THREE.ShaderMaterial({
-					vertexShader: document.getElementById('vertexShader').textContent,
-					fragmentShader: document.getElementById('fragmentShader').textContent
-				});
-
-				bola = new THREE.OBJLoader( manager );
-				bola.load( '/models/ball/NBA BASKETBALL.obj', function ( object ) {
-					object.traverse( function ( child ) {
-						if ( child instanceof THREE.Mesh ) {
-							child.material = shaderMat;
-						}
-					} );
-					object.applyMatrix(matrizBola);
-					object.position.set( xisbola, 0, -150 );
-					object.rotation.set( 0, 0, 0 );
-					object.scale.set(1, 1, 1);
-					object.updateMatrix();
-					aux = object;
-					scene.add( object );
-				}, onProgress, onError );*/
-
-
 				bola = new THREE.ImageLoader( manager );
 				texture2 = loader.load('/models/ball/NBA BASKETBALL DIFFUSE.tga');
 				bola = new THREE.OBJLoader( manager );
@@ -227,7 +205,6 @@
 					aux = object;
 					scene.add( object );
 				}, onProgress, onError );
-
 
 				//Banco
 				banco = new THREE.ImageLoader( manager );
@@ -295,26 +272,17 @@
 			function update(){
 
 				//1 PARA ATIVAR CAMERA 1
-				if(keyboard.pressed("0")){
-					if(camera2Active == false){
-						camera2Active = true;
-					}else{
-						camera2Active = false;
-					}
+				if(keyboard.pressed("1")){
+					camera2Active = false;
+				}
+				//2 PARA ATIVAR CAMERA 2
+				if(keyboard.pressed("2")){
+					camera2Active = true;
 				}
 				//Posiciona pro inicio
-				if(keyboard.pressed("2")){
+				if(keyboard.pressed("0")){
 					xisbola = 0;
 					zebola = 0;
-					reseta = true;
-					camera2Active = false;
-					aux.rotation.set( 0, 0, 0 );
-					aux.position.set(xisbola,0,zebola);
-				}
-				//Posiciona pra 3 pontos
-				if(keyboard.pressed("3")){
-					xisbola = 0;
-					zebola = 300;
 					reseta = true;
 					camera2Active = false;
 					aux.rotation.set( 0, 0, 0 );
@@ -324,24 +292,13 @@
 				//arremessa
 				if(keyboard.pressed("x")){
 					anda = true;
+					sai = 0;
 					camera2Active = true;
 				}
 
 				//Reseta pro inicio
 				if(keyboard.pressed("space")){
 					reseta = true;
-
-					if (count%2 == 0)
-					{
-						bola = bola1;
-						count++;
-					}
-					else
-					{
-						bola = bola2;
-						count++;
-					}
-
 					camera2Active = false;
 					aux.rotation.set( 0, 0, 0 );
 				}
@@ -376,15 +333,16 @@
 				camera1.position.y = cameraOffset.y-90;
 				camera1.position.z = cameraOffset.z;
 				camera1.lookAt( aux.position );
+
 				 //Pontos na tela
-				    var text2 = document.createElement('div');
-				    text2.style.fontSize = "30px";
-					text2.style.position = 'absolute';
-					text2.style.backgroundColor = "red";
-					text2.innerHTML = "PONTOS: " + pontos;
-					text2.style.top = 30 + 'px';
-					text2.style.left = 1100 + 'px';
-					document.body.appendChild(text2);
+			    var text2 = document.createElement('div');
+			    text2.style.fontSize = "30px";
+				text2.style.position = 'absolute';
+				text2.style.backgroundColor = "red";
+				text2.innerHTML = "PONTOS: " + pontos;
+				text2.style.top = 30 + 'px';
+				text2.style.left = 1100 + 'px';
+				document.body.appendChild(text2);
 				}
 
 			function arremessa(){
@@ -424,7 +382,6 @@
 					if(rand < 6 || xisbola == 0){
 						errou = 0;
 						flag = false;
-						pontos++;
 					}else{
 						errou = -50;
 						flag = false;
@@ -442,6 +399,10 @@
 					//MOVIMENTO BOLA 1
 					if(i >= 350){
 						i = 350;
+					}
+					if(i == 240 && errou == 0 && sai == 0){
+							pontos++;
+							sai = 1;
 					}
 					//reseta a bola para o inicio
 					if(reseta == true){
